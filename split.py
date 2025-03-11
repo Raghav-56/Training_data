@@ -18,6 +18,15 @@ from tqdm import tqdm  # For progress bars
 # Import the configured logger
 from config.logger_config import logger
 
+# Import default settings
+from config.settings import (
+    TRAIN_RATIO,
+    VAL_RATIO,
+    RANDOM_SEED,
+    COPY_FILES,
+    FILE_EXTENSIONS,
+)
+
 
 def validate_directory(directory: str, create: bool = False) -> Path:
     """
@@ -66,11 +75,11 @@ def get_files_by_extensions(
 def split_files(
     input_dir: str,
     output_dir: str,
-    train_ratio: float = 0.8,
-    val_ratio: float = 0.1,
-    seed: int = 42,
-    file_extensions: Optional[List[str]] = None,
-    copy_files: bool = False,
+    train_ratio: float = TRAIN_RATIO,
+    val_ratio: float = VAL_RATIO,
+    seed: int = RANDOM_SEED,
+    file_extensions: Optional[List[str]] = FILE_EXTENSIONS,
+    copy_files: bool = COPY_FILES,
 ):
     """
     Split files into train, validation, and test sets while preserving category structure.
@@ -149,26 +158,22 @@ def split_files(
         train_idx = int(len(files) * train_ratio)
         val_idx = train_idx + int(len(files) * val_ratio)
 
-        # Split files
         train_files = files[:train_idx]
         val_files = files[train_idx:val_idx] if val_ratio > 0 else []
         test_files = files[val_idx:] if test_ratio > 0 else []
 
         file_op = shutil.copy2 if copy_files else shutil.move
 
-        # Process train files
         if train_files:
             for file in tqdm(train_files, desc=f"Train/{category_name}"):
                 dest_file = train_category_dir / file.name
                 file_op(file, dest_file)
 
-        # Process validation files
         if val_files and val_category_dir:
             for file in tqdm(val_files, desc=f"Val/{category_name}"):
                 dest_file = val_category_dir / file.name
                 file_op(file, dest_file)
 
-        # Process test files
         if test_files and test_category_dir:
             for file in tqdm(test_files, desc=f"Test/{category_name}"):
                 dest_file = test_category_dir / file.name
@@ -198,23 +203,26 @@ def parse_arguments():
     parser.add_argument(
         "--train-ratio",
         type=float,
-        default=0.8,
-        help="Proportion of data for training set (default: 0.8)",
+        default=TRAIN_RATIO,
+        help=f"Proportion of data for training set (default: {TRAIN_RATIO})",
     )
     parser.add_argument(
         "--val-ratio",
         type=float,
-        default=0.1,
-        help="Proportion of data for validation set (default: 0.1)",
+        default=VAL_RATIO,
+        help=f"Proportion of data for validation set (default: {VAL_RATIO})",
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
-        help="Random seed for reproducibility (default: 42)",
+        default=RANDOM_SEED,
+        help=f"Random seed for reproducibility (default: {RANDOM_SEED})",
     )
     parser.add_argument(
-        "--copy", action="store_true", help="Copy files instead of moving them"
+        "--copy",
+        action="store_true",
+        default=COPY_FILES,
+        help="Copy files instead of moving them",
     )
     parser.add_argument(
         "--file-extensions",
