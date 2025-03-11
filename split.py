@@ -25,6 +25,8 @@ from config.settings import (
     RANDOM_SEED,
     COPY_FILES,
     FILE_EXTENSIONS,
+    DEFAULT_INPUT_DIR,
+    DEFAULT_OUTPUT_DIR,
 )
 
 
@@ -194,10 +196,15 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "input_directory", help="Input directory containing category subdirectories"
+        "--input",
+        dest="input_directory",
+        default=DEFAULT_INPUT_DIR,
+        help="Input directory containing category subdirectories",
     )
     parser.add_argument(
-        "output_directory",
+        "--output",
+        dest="output_directory",
+        default=DEFAULT_OUTPUT_DIR,
         help="Output directory where train/val/test splits will be created",
     )
     parser.add_argument(
@@ -247,6 +254,19 @@ def main():
         logging.getLogger().handlers[0].setLevel(logging.ERROR)  # Console handler
     else:
         logging.getLogger().handlers[0].setLevel(logging.INFO)  # Console handler
+
+    # Check if required arguments are provided
+    if args.input_directory is None:
+        logger.error(
+            "Input directory is required. Use --input or set DEFAULT_INPUT_DIR in settings.py."
+        )
+        return 1
+
+    if args.output_directory is None:
+        logger.error(
+            "Output directory is required. Use --output or set DEFAULT_OUTPUT_DIR in settings.py."
+        )
+        return 1
 
     # Parse file extensions if provided
     extensions = None

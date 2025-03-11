@@ -16,6 +16,14 @@ COPY_FILES = False
 # File extensions filter
 FILE_EXTENSIONS = None
 
+# Default directories
+DEFAULT_INPUT_DIR = (
+    None  # Set to None to require input or specify a default path like "D:/Data/Input"
+)
+DEFAULT_OUTPUT_DIR = (
+    None  # Set to None to require input or specify a default path like "D:/Data/Output"
+)
+
 # Logging settings
 LOGGING_LEVELS = {
     "DEBUG": 10,
